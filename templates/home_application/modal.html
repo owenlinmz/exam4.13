@@ -1,0 +1,36 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+
+
+
+</%block>
+<script>
+     new Vue({
+      el: '#app',
+      data: function () {
+        return {
+          modal1:false
+        }
+      },
+         methods: {
+          show(){
+              this.modal1  =  true
+          },
+             ok(){},
+             cancel(){}
+         }
+    })
+</script>
+<style>
+    .charts-wrapper{
+
+    }
+    .charts-wrapper{
+        width: 50%;
+        float:left;
+        border:1px solid #ddd;
+    }
+</style>
+
+

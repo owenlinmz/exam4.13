@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "feb003c2-2f58-4430-ad7f-ea0ffdad068c",
+		"name": "CC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "JOB",
+			"item": [
+				{
+					"name": "查询作业模版详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://paas.bk-dev.com/api/c/compapi/v2/job/get_job_detail/?bk_biz_id=2&bk_app_code=owenlin-exam&bk_app_secret=2aa28dfb-32f4-4f41-be5f-b17f3ebb203c&bk_username=admin&bk_job_id=3",
+							"protocol": "http",
+							"host": [
+								"paas",
+								"bk-dev",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"get_job_detail",
+								""
+							],
+							"query": [
+								{
+									"key": "bk_biz_id",
+									"value": "2"
+								},
+								{
+									"key": "bk_app_code",
+									"value": "owenlin-exam"
+								},
+								{
+									"key": "bk_app_secret",
+									"value": "2aa28dfb-32f4-4f41-be5f-b17f3ebb203c"
+								},
+								{
+									"key": "bk_username",
+									"value": "admin"
+								},
+								{
+									"key": "bk_job_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "查询作业模版",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "bk_biz_id",
+								"value": "2",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "bk_app_code",
+								"value": "bkexam-owenlin",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "bk_app_secret",
+								"value": "f4c037a6-5b8d-4a29-a336-d80745ab1a87",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "bk_usernam",
+								"value": "admin",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://paasee-dev.bktencent.com/api/c/compapi/v2/job/get_job_list/?bk_biz_id=2&bk_app_code=bkexam-owenlin&bk_app_secret=f4c037a6-5b8d-4a29-a336-d80745ab1a87&bk_username=admin",
+							"protocol": "https",
+							"host": [
+								"paasee-dev",
+								"bktencent",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"get_job_list",
+								""
+							],
+							"query": [
+								{
+									"key": "bk_biz_id",
+									"value": "2"
+								},
+								{
+									"key": "bk_app_code",
+									"value": "bkexam-owenlin"
+								},
+								{
+									"key": "bk_app_secret",
+									"value": "f4c037a6-5b8d-4a29-a336-d80745ab1a87"
+								},
+								{
+									"key": "bk_username",
+									"value": "admin"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行作业",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bk_app_code\": \"owenlin-exam\",\n    \"bk_app_secret\": \"2aa28dfb-32f4-4f41-be5f-b17f3ebb203c\",\n    \"bk_username\": \"admin\",\n    \"bk_biz_id\": 2,\n    \"bk_job_id\": 3,\n    \"steps\": [\n        {\n            \"account\": \"root\",\n            \"pause\": 0,\n            \"is_param_sensitive\": 0,\n            \"creator\": \"admin\",\n            \"script_timeout\": 1000,\n            \"last_modify_user\": \"admin\",\n            \"block_order\": 1,\n            \"name\": \"查看磁盘使用情况\",\n            \"script_content\": \"#!/bin/bash\\n\\n# 查看磁盘使用情况\\n\\ndf -h\",\n            \"block_name\": \"查看磁盘使用情况\",\n            \"create_time\": \"2019-04-08 10:10:13 +0800\",\n            \"last_modify_time\": \"2019-04-08 17:03:41 +0800\",\n            \"ip_list\": [\n                {\n                    \"ip\": \"192.168.163.212\",\n                    \"bk_cloud_id\": 0\n                }\n            ],\n            \"step_id\": 3,\n            \"script_id\": 7,\n            \"script_param\": \"\",\n            \"type\": 1,\n            \"order\": 1,\n            \"script_type\": 1\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://paas.bk-dev.com/api/c/compapi/v2/job/execute_job/",
+							"protocol": "http",
+							"host": [
+								"paas",
+								"bk-dev",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"execute_job",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "查询作业执行状态",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://paas.bk-dev.com/api/c/compapi/v2/job/get_job_instance_status/?bk_biz_id=2&bk_app_secret=2aa28dfb-32f4-4f41-be5f-b17f3ebb203c&bk_username=admin&job_instance_id=13&bk_app_code=owenlin-exam",
+							"protocol": "http",
+							"host": [
+								"paas",
+								"bk-dev",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"get_job_instance_status",
+								""
+							],
+							"query": [
+								{
+									"key": "bk_biz_id",
+									"value": "2"
+								},
+								{
+									"key": "bk_app_secret",
+									"value": "2aa28dfb-32f4-4f41-be5f-b17f3ebb203c"
+								},
+								{
+									"key": "bk_username",
+									"value": "admin"
+								},
+								{
+									"key": "job_instance_id",
+									"value": "13"
+								},
+								{
+									"key": "bk_app_code",
+									"value": "owenlin-exam"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "查询作业执行日志",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://paas.bk-dev.com/api/c/compapi/v2/job/get_job_instance_log/?bk_biz_id=2&bk_app_code=owenlin-exam&bk_app_secret=2aa28dfb-32f4-4f41-be5f-b17f3ebb203c&bk_username=admin&job_instance_id=195",
+							"protocol": "http",
+							"host": [
+								"paas",
+								"bk-dev",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"get_job_instance_log",
+								""
+							],
+							"query": [
+								{
+									"key": "bk_biz_id",
+									"value": "2"
+								},
+								{
+									"key": "bk_app_code",
+									"value": "owenlin-exam"
+								},
+								{
+									"key": "bk_app_secret",
+									"value": "2aa28dfb-32f4-4f41-be5f-b17f3ebb203c"
+								},
+								{
+									"key": "bk_username",
+									"value": "admin"
+								},
+								{
+									"key": "job_instance_id",
+									"value": "195"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "快速执行脚本",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bk_app_code\": \"bkexam-owenlin\",\n    \"bk_app_secret\": \"f4c037a6-5b8d-4a29-a336-d80745ab1a87\",\n    \"bk_username\": \"admin\",\n    \"account\": \"root\",\n    \"bk_biz_id\": 2,\n    \"script_content\": \"IyEvYmluL2Jhc2gKICAgIE1FTU9SWT0kKGZyZWUgLW0gfCBhd2sgJ05SPT0ye3ByaW50ZiAiJS4yZiUlIiwgJDMqMTAwLyQyIH0nKQogICAgRElTSz0kKGRmIC1oIHwgYXdrICckTkY9PSIvIntwcmludGYgIiVzIiwgJDV9JykKICAgIENQVT0kKHRvcCAtYm4xIHwgZ3JlcCBsb2FkIHwgYXdrICd7cHJpbnRmICIlLjJmJSUiLCAkKE5GLTIpfScpCiAgICBEQVRFPSQoZGF0ZSAiKyVZLSVtLSVkICVIOiVNOiVTIikKICAgIGVjaG8gLWUgIiREQVRFfCRNRU1PUll8JERJU0t8JENQVSIKICAgIA==\",\n    \"ip_list\": [\n        {\n            \"bk_cloud_id\": 0,\n            \"ip\": \"10.0.1.11\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://paasee-dev.bktencent.com/api/c/compapi/v2/job/fast_execute_script/",
+							"protocol": "https",
+							"host": [
+								"paasee-dev",
+								"bktencent",
+								"com"
+							],
+							"path": [
+								"api",
+								"c",
+								"compapi",
+								"v2",
+								"job",
+								"fast_execute_script",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "查询集群",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "bk_csrftoken=4kCc4GitOprYQx04NeKMg3EaLUXn1704; o_s=%7B%22lock%22%3Afalse%2C%22msg%22%3A%7B%7D%7D; qcloud_from=qcloud.google.seo-1550734352172; blueking_language=zh-cn; bklogin_csrftoken=13LF3U4omvFvDZsTc9HozaGdW5rwf4RN; bk_token=Z6X6ZmK8b6hUhEfhB29wZmifO0-x1vkpO_T6A-eTEho; enterprise_monitor_csrftoken=A7gDa38aZXQxEvTmv6hMJMkfx6WRuCaa; sessionid=3tpa8zsvvttm72l1679l39uvkqhorktp; o_f=%7B%22lock%22%3Atrue%2C%22msg%22%3A%7B%22workbench%22%3A%7B%222019-2-19%22%3A12626%2C%222019-2-22%22%3A980%2C%222019-2-25%22%3A7590%7D%7D%7D; bk_biz_id=2",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bk_app_code\": \"bk_monitor\",\n    \"bk_app_secret\": \"d533f390-336f-45e2-9375-4ff5dd968ea5\",\n    \"bk_username\": \"admin\",\n    \"bk_biz_id\": 2,\n    \"fields\": [\n        \"bk_set_name\",\"bk_set_id\"\n    ],\n    \"condition\": {\n        \n    },\n    \"page\": {\n        \"start\": 0,\n        \"limit\": 200\n    }\n}"
+				},
+				"url": {
+					"raw": "https://paasee-dev.bktencent.com/api/c/compapi/v2/cc/search_set/",
+					"protocol": "https",
+					"host": [
+						"paasee-dev",
+						"bktencent",
+						"com"
+					],
+					"path": [
+						"api",
+						"c",
+						"compapi",
+						"v2",
+						"cc",
+						"search_set",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询业务",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bk_app_code\": \"bkexam-owenlin\",\n    \"bk_app_secret\": \"f4c037a6-5b8d-4a29-a336-d80745ab1a87\",\n    \"bk_username\": \"admin\",\n    \"fields\": [\n        \"bk_biz_name\",\"bk_biz_id\"\n    ],\n    \"condition\": {\n        \n    },\n    \"page\": {\n        \"start\": 0,\n        \"limit\": 200\n    }\n}"
+				},
+				"url": {
+					"raw": "https://paasee-dev.bktencent.com/api/c/compapi/v2/cc/search_business/",
+					"protocol": "https",
+					"host": [
+						"paasee-dev",
+						"bktencent",
+						"com"
+					],
+					"path": [
+						"api",
+						"c",
+						"compapi",
+						"v2",
+						"cc",
+						"search_business",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询主机",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bk_app_code\": \"bkexam-owenlin\",\n    \"bk_app_secret\": \"f4c037a6-5b8d-4a29-a336-d80745ab1a87\",\n    \"bk_username\": \"admin\",\n    \"bk_biz_id\": 2,\n    \"condition\": [\n    \n    \t{\n    \t\t\"bk_obj_id\": \"module\",\n    \t\t\"fields\": [\"bk_set_name\",\n                    \"bk_set_id\"],\n    \t\t\"condition\": [\n    \n    \t\t]\n    \t}\n    ]\n}"
+				},
+				"url": {
+					"raw": "https://paasee-dev.bktencent.com/api/c/compapi/v2/cc/search_host/",
+					"protocol": "https",
+					"host": [
+						"paasee-dev",
+						"bktencent",
+						"com"
+					],
+					"path": [
+						"api",
+						"c",
+						"compapi",
+						"v2",
+						"cc",
+						"search_host",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

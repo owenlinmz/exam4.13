@@ -52,7 +52,7 @@ def execute_task():
 @periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
 def get_pfm():
     start = datetime.datetime.now()
-    logger.info(u"开始获取...{}".format(start))
+    # logger.info(u"开始获取...{}".format(start))
     host_info_list = HostInfo.objects.filter(is_delete=False, bk_os_name__contains='linux')
     ip_list = []
     for host_info in host_info_list:
@@ -110,5 +110,5 @@ echo -e "$DATE|$MEMORY|$DISK|$CPU"
                         disk=disk,
                         cpu=cpu
                     )
-                    now = datetime.datetime.now()
-                    logger.info(u"主机{}完成一条性能查询：{}".format(host_pfm.bk_host_innerip, now))
+                    # now = datetime.datetime.now()
+                    # logger.info(u"主机{}完成一条性能查询：{}".format(host_pfm.bk_host_innerip, now))

@@ -117,6 +117,15 @@ def get_new_pfm(request):
 
 
 @csrf_exempt
+def list_host(request):
+    host_list = HostInfo.objects.filter(is_delete=False)
+    result = []
+    for host in host_list:
+        result.append(host.bk_host_innerip)
+    return render_json({'data': result})
+
+
+@csrf_exempt
 def switch_pfm(request):
     params = json.loads(request.body)
     host_info = HostInfo.objects.get(bk_host_innerip=params['ip'])
@@ -166,12 +175,14 @@ def display_performance(request):
             "title": pfm_list[0].bk_host_innerip.bk_host_innerip
         }
 
-    params = CommonUtil.pop_useless_params(json.loads(request.body))
+    params = json.loads(request.body)
     result = []
     now = datetime.datetime.now()
     params.update({
-        'check_time__gte': now - datetime.timedelta(0, 3600)
+        'check_time__gte': now - datetime.timedelta(0, 3600),
+        'bk_host_innerip_id': HostInfo.objects.get(bk_host_innerip=params.pop('ip')).id
     })
+
     host_pfm_list = HostPerformance.objects.filter(**params)
     if params.get('bk_host_innerip__in', None):
         for ip in params['bk_host_innerip__in']:

@@ -4,15 +4,15 @@
 <div class="performance" id="app">
 
     <i-form class="select">
-        <Form-item label="选择业务">
-            <i-select v-model="bizModel" style="width: 45%">
-                <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
-                          :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
+        <Form-item label="主机">
+            <i-select v-model="hostModel" style="width: 45%">
+                <i-option v-for="item in hosts" :value="item"
+                          :key="item">{{ item }}</i-option>
             </i-select>
-            <i-input v-model="ip_list" placeholder="请输入IP" style="width: 45%"/>
         </Form-item>
-        <i-button type="primary" @click="display_performance" style="margin-left: 40%">查询性能</i-button>
     </i-form>
+
+
     <div v-for="item in elements" :id="item.element_name"
          style="height:250px; margin-top: 50px; width: 80%; margin-left: 10%"></div>
 </div>
@@ -25,9 +25,10 @@
         data: {
             pfm_data_list: [],
             ip_list: '',
-            bizModel: '',
+            hostModel: '',
             bk_biz_id: [],
-            elements: []
+            elements: [],
+            hosts: []
         },
         methods: {
             get_biz() {
@@ -78,11 +79,18 @@
                     series: pfm_data.series
                 });
             },
+            list_host: function () {
+                let url = site_url + 'list_host/';
+                this.$http.get(url).then(response => {
+                    this.hosts = response.data.data;
+                }).catch(error => {
+                    console.log(error)
+                });
+            },
             display_performance() {
                 let url = site_url + 'display_performance/';
                 let params = {
-                    bk_host_innerip__in: this.ip_list,
-                    bk_host_innerip__bk_biz_id__in: this.bizModel
+                    ip: this.hostModel,
                 };
                 this.$http.post(url, params).then(response => {
                     this.pfm_data_list = response.data.data;
@@ -101,10 +109,10 @@
 
         },
         mounted() {
-            this.get_biz();
+            this.list_host();
         },
         watch: {
-            bizModel() {
+            hostModel() {
                 this.display_performance();
             }
         }

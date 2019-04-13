@@ -20,6 +20,7 @@ from blueking.component.shortcuts import get_client_by_user
 from common.log import logger
 from home_application.common_esb import fast_execute_script_esb, get_job_instance_log_esb, execute_job_esb
 # from home_application.models import HostInfo, HostLoad5, HostMem, HostDisk
+from home_application.models import HostInfo, HostPerformance
 
 
 @task()
@@ -48,263 +49,66 @@ def execute_task():
     # async_task.apply_async(args=[now.hour, now.minute], eta=now + datetime.timedelta(seconds=60))
 
 
-@periodic_task(run_every=crontab(minute='*/5', hour='*', day_of_week="*"))
-def get_time():
-    """
-    celery 周期任务示例
+@periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
+def get_pfm():
+    start = datetime.datetime.now()
+    logger.info(u"开始获取...{}".format(start))
+    host_info_list = HostInfo.objects.filter(is_delete=False, bk_os_name__contains='linux')
+    ip_list = []
+    for host_info in host_info_list:
+        ip_list.append({
+            'ip': host_info.bk_host_innerip,
+            'bk_cloud_id': host_info.bk_cloud_id
+        })
+    if host_info_list:
+        username = host_info_list[0].last_user
+        bk_biz_id = host_info_list[0].bk_biz_id
+        client = get_client_by_user(username)
+        script_content = '''#!/bin/bash
+            MEMORY=$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')
+            DISK=$(df -h | awk '$NF=="/"{printf "%s", $5}')
+            CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
+            DATE=$(date "+%Y-%m-%d %H:%M:%S")
+            echo -e "$DATE|$MEMORY|$DISK|$CPU"
+            '''
+        data = {
+            'ip_list': ip_list,
+            'bk_biz_id': bk_biz_id
+        }
+        res = fast_execute_script_esb(client, username, data, base64.b64encode(script_content))
+        time.sleep(5)
+        if res['data']:
+            params = {}
+            params.update({'bk_biz_id': data['bk_biz_id'], 'job_instance_id': res['data']['job_instance_id']})
+            res = get_job_instance_log_esb(client, username, params)
 
-    run_every=crontab(minute='*/5', hour='*', day_of_week="*")：每 5 分钟执行一次任务
-    periodic_task：程序运行时自动触发周期任务
-    """
-    # execute_task()
-    # now = datetime.datetime.now()
-    # logger.error(u"celery 周期任务调用成功，当前时间：{}".format(now))
+            for i in range(5):
+                if res['data'][0]['status'] != 3:
+                    time.sleep(2)
+                    res = get_job_instance_log_esb(client, username, params)
+                else:
+                    break
 
-
-# @periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
-# def get_job_instance_status():
-#     logger.info(u"已启动作业状态查询")
-#     all_history = JobHistory.objects.all()
-#     for obj in all_history:
-#         if obj.job_status not in [3, 4]:
-#             url_status = BK_PAAS_HOST + '/api/c/compapi/v2/job/get_job_instance_status/'
-#             url_log = BK_PAAS_HOST + '/api/c/compapi/v2/job/get_job_instance_log/'
-#             params = {
-#                 "bk_app_code": APP_ID,
-#                 "bk_app_secret": APP_TOKEN,
-#                 "bk_username": "admin",
-#                 "bk_biz_id": obj.bk_biz_id,
-#                 "job_instance_id": obj.job_instance_id
-#             }
-#             response_status = requests.post(url_status, json.dumps(params), verify=False)
-#             response_log = requests.post(url_log, json.dumps(params), verify=False)
-#             data_status = json.loads(response_status.content)
-#             data_log = json.loads(response_log.content)
-#             if data_status['result']:
-#                 history_obj = JobHistory.objects.get(bk_biz_id=obj.bk_biz_id, job_instance_id=obj.job_instance_id)
-#                 history_obj.job_status = data_status['data']['job_instance']['status']
-#                 if data_log['result']:
-#                     history_obj.job_log = json.dumps(data_log['data'])
-#                     history_obj.save()
-
-
-# @periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
-# def get_load5():
-#     host_info_list = HostInfo.objects.filter(is_delete=False)
-#     ip_list = []
-#     if not host_info_list:
-#         return
-#     else:
-#         username = host_info_list[0].last_user
-#         bk_biz_id = host_info_list[0].bk_biz_id
-#
-#     for host_info in host_info_list:
-#         ip_list.append({
-#             'ip': host_info.bk_host_innerip,
-#             'bk_cloud_id': host_info.bk_cloud_id
-#         })
-#
-#     client = get_client_by_user(username)
-#     data = {
-#         'bk_biz_id': bk_biz_id,
-#         "bk_job_id": 1,
-#         "steps": [
-#             {
-#                 "account": "root",
-#                 "pause": 0,
-#                 "is_param_sensitive": 0,
-#                 "creator": "admin",
-#                 "script_timeout": 1000,
-#                 "last_modify_user": "admin",
-#                 "block_order": 1,
-#                 "name": "查看CPU负载",
-#                 "script_content": "#!/bin/bash\n\ncat /proc/loadavg",
-#                 "block_name": "查看CPU负载",
-#                 "create_time": "2019-04-08 10:06:52 +0800",
-#                 "last_modify_time": "2019-04-08 10:06:55 +0800",
-#                 "ip_list": ip_list,
-#                 "step_id": 1,
-#                 "script_id": 2,
-#                 "script_param": "",
-#                 "type": 1,
-#                 "order": 1,
-#                 "script_type": 1
-#             }
-#         ]
-#     }
-#     res = execute_job_esb(client, username, data)
-#     time.sleep(5)
-#     if res['data']:
-#         params = {'bk_biz_id': data['bk_biz_id'], 'job_instance_id': res['data']['job_instance_id']}
-#         res = get_job_instance_log_esb(client, 'admin', params)
-#
-#         for i in range(5):
-#             if res['data'][0]['status'] != 3:
-#                 time.sleep(2)
-#                 res = get_job_instance_log_esb(client, 'admin', params)
-#             else:
-#                 break
-#
-#         if res['data'][0]['status'] == 3:
-#             # 处理性能数据
-#             try:
-#                 for result in res['data'][0]['step_results'][0]['ip_logs']:
-#                     load5 = result['log_content'].split(' ')[1]
-#                     ip = result['ip']
-#                     check_time = result['start_time'].split(' +')[0]
-#                     host_info = HostInfo.objects.get(bk_host_innerip=ip)
-#                     HostLoad5.objects.create(load5=load5,
-#                                              check_time=datetime.datetime.strptime(check_time, "%Y-%m-%d %H:%M:%S"),
-#                                              bk_host_innerip=host_info)
-#             except KeyError:
-#                 logger.error(u"找不到负载数据")
-
-
-# @periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
-# def get_mem():
-#     host_info_list = HostInfo.objects.filter(is_delete=False)
-#     ip_list = []
-#     if not host_info_list:
-#         return
-#     else:
-#         username = host_info_list[0].last_user
-#         bk_biz_id = host_info_list[0].bk_biz_id
-#
-#     for host_info in host_info_list:
-#         ip_list.append({
-#             'ip': host_info.bk_host_innerip,
-#             'bk_cloud_id': host_info.bk_cloud_id
-#         })
-#
-#     client = get_client_by_user(username)
-#     data = {
-#         'bk_biz_id': bk_biz_id,
-#         "bk_job_id": 1,
-#         "steps": [
-#             {
-#                 "account": "root",
-#                 "pause": 0,
-#                 "is_param_sensitive": 0,
-#                 "creator": "admin",
-#                 "script_timeout": 1000,
-#                 "last_modify_user": "admin",
-#                 "block_order": 1,
-#                 "name": "查看内存状态",
-#                 "script_content": "#!/bin/bash\n\n# 查看内存状态\n\nfree -m",
-#                 "block_name": "查看内存状态",
-#                 "create_time": "2019-04-08 10:08:41 +0800",
-#                 "last_modify_time": "2019-04-08 10:08:43 +0800",
-#                 "ip_list": ip_list,
-#                 "step_id": 1,
-#                 "script_id": 4,
-#                 "script_param": "",
-#                 "type": 1,
-#                 "order": 1,
-#                 "script_type": 1
-#             }
-#         ]
-#     }
-#     res = execute_job_esb(client, username, data)
-#     time.sleep(5)
-#     if res['data']:
-#         params = {'bk_biz_id': data['bk_biz_id'], 'job_instance_id': res['data']['job_instance_id']}
-#         res = get_job_instance_log_esb(client, 'admin', params)
-#
-#         for i in range(5):
-#             if res['data'][0]['status'] != 3:
-#                 time.sleep(2)
-#                 res = get_job_instance_log_esb(client, 'admin', params)
-#             else:
-#                 break
-#
-#         if res['data'][0]['status'] == 3:
-#             # 处理性能数据
-#             try:
-#                 for result in res['data'][0]['step_results'][0]['ip_logs']:
-#                     mem = result['log_content'].split('\n')[1].split(' ')
-#                     real_mem = []
-#                     for item in mem:
-#                         if item:
-#                             real_mem.append(item)
-#
-#                     ip = result['ip']
-#                     check_time = result['start_time'].split(' +')[0]
-#                     host_info = HostInfo.objects.get(bk_host_innerip=ip)
-#                     HostMem.objects.create(used_mem=real_mem[2],
-#                                            free_mem=real_mem[3],
-#                                            check_time=datetime.datetime.strptime(check_time, "%Y-%m-%d %H:%M:%S"),
-#                                            bk_host_innerip=host_info)
-#             except KeyError:
-#                 logger.error(u"找不到内存数据")
-
-
-# @periodic_task(run_every=crontab(minute='*/1', hour='*', day_of_week='*'))
-# def get_disk():
-#     host_info_list = HostInfo.objects.filter(is_delete=False)
-#     ip_list = []
-#     if not host_info_list:
-#         return
-#     else:
-#         username = host_info_list[0].last_user
-#         bk_biz_id = host_info_list[0].bk_biz_id
-#
-#     for host_info in host_info_list:
-#         ip_list.append({
-#             'ip': host_info.bk_host_innerip,
-#             'bk_cloud_id': host_info.bk_cloud_id
-#         })
-#
-#     client = get_client_by_user(username)
-#     data = {
-#         'bk_biz_id': bk_biz_id,
-#         "bk_job_id": 1,
-#         "steps": [
-#             {
-#                 "account": "root",
-#                 "pause": 0,
-#                 "is_param_sensitive": 0,
-#                 "creator": "admin",
-#                 "script_timeout": 1000,
-#                 "last_modify_user": "admin",
-#                 "block_order": 1,
-#                 "name": "查看磁盘使用情况",
-#                 "script_content": "#!/bin/bash\n\n# 查看磁盘使用情况\n\ndf -h",
-#                 "block_name": "查看磁盘使用情况",
-#                 "create_time": "2019-04-08 10:10:13 +0800",
-#                 "last_modify_time": "2019-04-08 10:10:58 +0800",
-#                 "ip_list": ip_list,
-#                 "step_id": 1,
-#                 "script_id": 7,
-#                 "script_param": "",
-#                 "type": 1,
-#                 "order": 1,
-#                 "script_type": 1
-#             }
-#         ]
-#     }
-#     res = execute_job_esb(client, username, data)
-#     time.sleep(5)
-#     if res['data']:
-#         params = {'bk_biz_id': data['bk_biz_id'], 'job_instance_id': res['data']['job_instance_id']}
-#         res = get_job_instance_log_esb(client, 'admin', params)
-#
-#         for i in range(5):
-#             if res['data'][0]['status'] != 3:
-#                 time.sleep(2)
-#                 res = get_job_instance_log_esb(client, 'admin', params)
-#             else:
-#                 break
-#
-#         if res['data'][0]['status'] == 3:
-#             # 处理性能数据
-#             try:
-#                 for result in res['data'][0]['step_results'][0]['ip_logs']:
-#                     disk = result['log_content'].split('\n')
-#                     ip = result['ip']
-#                     check_time = result['start_time'].split(' +')[0]
-#                     host_info = HostInfo.objects.get(bk_host_innerip=ip)
-#                     HostDisk.objects.create(disk=json.dumps(disk),
-#                                             check_time=datetime.datetime.strptime(check_time, "%Y-%m-%d %H:%M:%S"),
-#                                             bk_host_innerip=host_info)
-#             except KeyError:
-#                 logger.error(u"找不到磁盘数据")
+            if res['data'][0]['status'] == 3:
+                # 处理性能数据
+                try:
+                    pfm_data = res['data'][0]['step_results'][0]['ip_logs']
+                except KeyError:
+                    pfm_data = []
+                for item in pfm_data:
+                    result = item['log_content'].split('|')
+                    check_time = result[0]
+                    mem = result[1]
+                    disk = result[2]
+                    cpu = result[3]
+                    ip = item['ip']
+                    host_info = HostInfo.objects.get(bk_host_innerip=ip)
+                    host_pfm = HostPerformance.objects.create(
+                        bk_host_innerip=host_info,
+                        check_time=datetime.datetime.strptime(check_time, "%Y-%m-%d %H:%M:%S"),
+                        mem=mem,
+                        disk=disk,
+                        cpu=cpu
+                    )
+                    now = datetime.datetime.now()
+                    logger.info(u"主机{}完成一条性能查询：{}".format(host_pfm.bk_host_innerip, now))

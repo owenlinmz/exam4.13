@@ -13,6 +13,9 @@ urlpatterns = patterns(
     (r'^get_set/$', 'get_set'),
     (r'^get_biz/$', 'get_biz'),
     (r'^search_host/$', 'get_host'),
+    (r'^get_new_pfm/$', 'get_new_pfm'),
+    (r'^switch_pfm/$', 'switch_pfm'),
+
     (r'^list_host/$', 'list_host'),
     (r'^add_host/$', 'add_host'),
     (r'^delete_host/$', 'delete_host'),

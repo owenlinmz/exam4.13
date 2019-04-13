@@ -18,7 +18,7 @@ from conf.default import APP_ID, APP_TOKEN, BK_PAAS_HOST
 
 from home_application.common_esb import get_job_instance_log_esb, fast_execute_script_esb, search_host_esb, \
     search_set_esb, search_business_esb, fast_push_file_esb, execute_job_esb
-# from home_application.models import HostInfo, HostLoad5, HostMem, HostDisk
+from home_application.models import HostInfo
 
 
 def home(request):
@@ -68,38 +68,38 @@ def get_set(request):
     return render_json(res)
 
 
-# @csrf_exempt
-# def get_host(request):
-#     params = json.loads(request.body)
-#     bk_host_innerip__in = params.get('bk_host_innerip__in')
-#     client = get_client_by_request(request)
-#     res = search_host_esb(client, request.user.username)
-#     result = []
-#     for item in res['data']:
-#         params = {
-#             'bk_host_innerip': item['host']['bk_host_innerip'],
-#             'bk_host_name': item['host']['bk_host_name'],
-#             'bk_os_name': item['host']['bk_os_name'],
-#             'bk_inst_name': item['host']['bk_cloud_id'][0]['bk_inst_name'],
-#             'bk_cloud_id': item['host']['bk_cloud_id'][0]['id'],
-#             'bk_biz_id': item['biz'][0]['bk_biz_id'],
-#             'bk_biz_name': item['biz'][0]['bk_biz_name'],
-#             'last_user': request.user.username
-#         }
-#         host_info, is_exist = HostInfo.objects.update_or_create(**params)
-#         if is_exist:
-#             host_info.last_user = request.user.username
-#             host_info.save()
-#
-#     if bk_host_innerip__in:
-#         bk_host_innerip__in = bk_host_innerip__in.split(',')
-#         host_info = HostInfo.objects.filter(bk_host_innerip__in=bk_host_innerip__in, is_delete=False)
-#     else:
-#         host_info = HostInfo.objects.filter(is_delete=False)
-#     for host in host_info:
-#         result.append(model_to_dict(host))
-#
-#     return render_json({'data': result})
+@csrf_exempt
+def get_host(request):
+    params = json.loads(request.body)
+    bk_host_innerip__in = params.get('bk_host_innerip__in')
+    client = get_client_by_request(request)
+    res = search_host_esb(client, request.user.username)
+    result = []
+    for item in res['data']:
+        params = {
+            'bk_host_innerip': item['host']['bk_host_innerip'],
+            'bk_host_name': item['host']['bk_host_name'],
+            'bk_os_name': item['host']['bk_os_name'],
+            'bk_inst_name': item['host']['bk_cloud_id'][0]['bk_inst_name'],
+            'bk_cloud_id': item['host']['bk_cloud_id'][0]['id'],
+            'bk_biz_id': item['biz'][0]['bk_biz_id'],
+            'bk_biz_name': item['biz'][0]['bk_biz_name'],
+            'last_user': request.user.username
+        }
+        host_info, is_exist = HostInfo.objects.update_or_create(**params)
+        if is_exist:
+            host_info.last_user = request.user.username
+            host_info.save()
+
+    if bk_host_innerip__in:
+        bk_host_innerip__in = bk_host_innerip__in.split(',')
+        host_info = HostInfo.objects.filter(bk_host_innerip__in=bk_host_innerip__in, is_delete=False)
+    else:
+        host_info = HostInfo.objects.filter(is_delete=False)
+    for host in host_info:
+        result.append(model_to_dict(host))
+
+    return render_json({'data': result})
 
 
 # @csrf_exempt

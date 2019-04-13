@@ -3,24 +3,13 @@
 <%block name="content">
 <div class="home-page" id="app">
     <div class="select">
+        <i-select label="选择业务" v-model="bizModel" style="width:200px">
+            <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
+                      :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
+        </i-select>
         <i-input v-model="ip_list" placeholder="请输入IP (使用逗号分隔)" style="width: 300px"></i-input>
         <i-button type="primary" @click="search_host" style="margin:0 10px">查询主机</i-button>
-        <i-button type="primary" @click="modal1 = true">添加主机</i-button>
 
-        <Modal
-                v-model="modal1"
-                title="添加主机"
-                @on-ok="add_host"
-                @on-cancel="cancel">
-            <i-select label="选择业务" v-model="bizModel" style="width:200px">
-                <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
-                          :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
-            </i-select>
-            <i-select label="选择主机" v-model="hostModel" style="width:200px">
-                <i-option v-for="item in host" :value="item.bk_host_innerip"
-                          :key="item.bk_host_innerip">{{ item.bk_host_innerip }}</i-option>
-            </i-select>
-        </Modal>
 
         <Modal v-model="modal2" fullscreen title="性能数据">
             <div id="load5"
@@ -32,23 +21,6 @@
 
             <i-table stripe height="300" width="100%" :columns="disk_table" :data="disks"></i-table>
 
-        </Modal>
-
-        <Modal
-                v-model="modal3"
-                title="修改"
-                @on-ok="edit_desc"
-                @on-cancel="cancel">
-            <i-select label="选择业务" v-model="bizModel" disabled style="width:200px">
-                <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
-                          :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
-            </i-select>
-            <i-select label="选择主机" v-model="hostModel" disabled style="width:200px">
-                <i-option v-for="item in host" :value="item.bk_host_innerip"
-                          :key="item.bk_host_innerip">{{ item.bk_host_innerip }}</i-option>
-            </i-select>
-
-            <i-input label="备注" v-model="desc" placeholder="输入备注" style="width: 300px; margin-top: 20px"></i-input>
         </Modal>
 
     </div>
@@ -109,28 +81,32 @@
             ],
             columns: [
                 {
-                    title: '主机IP',
+                    title: '内网IP',
                     key: 'bk_host_innerip'
+                },
+                {
+                    title: '系统名',
+                    key: 'bk_os_name'
                 },
                 {
                     title: '主机名',
                     key: 'bk_host_name'
                 },
                 {
-                    title: '所属业务',
-                    key: 'bk_biz_name'
-                },
-                {
                     title: '云区域',
                     key: 'bk_inst_name'
                 },
                 {
-                    title: '操作系统类型',
-                    key: 'bk_os_name'
+                    title: '内存使用率',
+                    key: 'mem'
                 },
-                 {
-                    title: '备注',
-                    key: 'desc'
+                {
+                    title: '磁盘使用率',
+                    key: 'disk'
+                },
+                {
+                    title: 'cpu使用率',
+                    key: 'cpu'
                 },
                 {
                     title: '操作',
@@ -138,55 +114,49 @@
                     width: 300,
                     align: 'center',
                     render: (h, params) => {
-                        return h('div',
-                            [
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '10px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            vm.show_desc(params.row)
-                                        }
+                        return h('div', [
+                            h('Button', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    marginRight: '10px'
+                                },
+                                on: {
+                                    click: () => {
+                                        vm.update_pfm(params.row)
                                     }
-                                }, '修改'),
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '10px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            vm.show_pfm(params.row)
-                                        }
+                                }
+                            }, '更新主机数据'),
+                            h('Button', {
+                                props: {
+                                    type: vm.button_style[Number(params.row.is_delete)].color,
+                                    size: 'small'
+                                },
+                                on: {
+                                    click: () => {
+                                        vm.switch_pfm(params.row)
                                     }
-                                }, '查询性能'),
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            vm.delete_host(params.row)
-                                        }
-                                    }
-                                }, '删除')
-                            ]
-                        );
+                                }
+                            }, vm.button_style[Number(params.row.is_delete)].title)
+                        ]);
                     }
                 }
             ],
             hosts: [],
             ip_list: '',
-            host_pfm: ''
+            host_pfm: '',
+            button_style: [
+                {
+                    color: 'success',
+                    title: '已启用监控'
+                },
+                {
+                    color: 'error',
+                    title: '已停止监控'
+                }
+            ]
         },
         methods: {
             get_biz: function () {
@@ -211,19 +181,6 @@
                     }
                 );
             },
-            add_host() {
-                let url = site_url + 'add_host/';
-                let params = {
-                    ip: this.hostModel
-                };
-                this.$http.post(url, params).then(response => {
-                    if (response.data) {
-                        this.search_host();
-                        this.$Message.info(response.data.data);
-                    }
-                });
-
-            },
             cancel() {
                 this.$Message.info('cancel');
             },
@@ -232,40 +189,15 @@
                 this.display_performance(data.bk_host_innerip)
 
             },
-            show_desc: function (data) {
-                this.bizModel = data.bk_biz_id;
-                this.hostModel = data.bk_host_innerip;
-                this.modal3 = true;
-                this.desc = data.desc
-            },
-            edit_desc: function () {
-                let url = site_url + 'edit_desc/';
-                params = {
-                    ip: this.hostModel,
-                    desc: this.desc
-                };
-                this.$http.post(url, params).then(response => {
-                    alert(response.data.data);
-                    this.search_host()
-                })
-            },
-            delete_host: function (data) {
-                let url = site_url + 'delete_host/';
-                params = {
-                    ip: data.bk_host_innerip
-                };
-                this.$http.post(url, params).then(response => {
-                    this.search_host();
-                    alert(response.data.data);
-                })
-            },
-            list_host: function () {
-                let url = site_url + 'list_host/?bk_biz_id=' + this.bizModel;
+            update_pfm: function (data) {
+                console.log(data);
+                url = site_url + 'get_new_pfm/?ip=' + data.bk_host_innerip;
                 this.$http.get(url).then(response => {
-                    this.host = response.data.data;
-                }).catch(error => {
-                    console.log(error)
+                    Vue.set(this.hosts, data._index, response.data.data)
                 });
+            },
+            switch_pfm: function (data) {
+
             },
             get_load5: function () {
                 let url = site_url + 'get_load5/';
@@ -334,11 +266,11 @@
         },
         mounted() {
             this.get_biz();
-            this.search_host();
+
         },
         watch: {
             bizModel() {
-                this.list_host();
+                this.search_host();
             },
         }
 

@@ -28,7 +28,7 @@ from django.conf.global_settings import *  # noqa
 # BK_PAAS_HOST = 'https://ios.corp.hq.csg'
 
 APP_ID = 'owenlin-exam'
-APP_TOKEN = '2aa28dfb-32f4-4f41-be5f-b17f3ebb203c'
+APP_TOKEN = 'bf78bb0a-4948-4ed7-b93f-6c0758ad873d'
 # 蓝鲸智云开发者中心的域名，形如：http://paas.bking.com
 BK_PAAS_HOST = 'http://paas.bk-dev.com'
 

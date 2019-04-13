@@ -10,19 +10,16 @@
         <i-input v-model="ip_list" placeholder="请输入IP (使用逗号分隔)" style="width: 300px"></i-input>
         <i-button type="primary" @click="search_host" style="margin:0 10px">查询主机</i-button>
 
-
         <Modal v-model="modal1" title="性能查询" @on-ok="update_pfm" @on-cancel="cancel">
-            <p>是否确认更新该主机的性能</p>
+            <p v-if="is_delete">请先启动该主机的监控</p>
+            <p v-else>是否确认更新该主机的性能</p>
         </Modal>
 
         <Modal v-model="modal2" title="监控启动/停止" @on-ok="switch_pfm" @on-cancel="cancel">
             <p v-if="is_delete">是否确认停止该主机的监控</p>
             <p v-else>是否确认启动该主机的监控</p>
         </Modal>
-
-
     </div>
-
 
     <div class="host_list">
         <Card style="width: 100%;">
@@ -96,8 +93,9 @@
                                 },
                                 on: {
                                     click: () => {
-                                        vm.is_update_pfm(params.row);
-
+                                        vm.hostModel = params.row;
+                                        vm.is_delete = vm.hostModel.is_delete;
+                                        vm.modal1 = true;
                                     }
                                 }
                             }, '更新主机数据'),
@@ -161,15 +159,19 @@
 
             is_update_pfm: function (data) {
                 vm.hostModel = data;
+                vm.is_delete = vm.hostModel.is_delete;
                 vm.modal1 = true;
             },
             update_pfm: function () {
-                url = site_url + 'get_new_pfm/?ip=' + this.hostModel.bk_host_innerip;
-                this.$http.get(url).then(response => {
-                    Vue.set(this.hosts, this.hostModel._index, response.data.data);
-                    this.$Message.info('ok');
-
-                });
+                if (this.is_delete === false) {
+                    url = site_url + 'get_new_pfm/?ip=' + this.hostModel.bk_host_innerip;
+                    this.$http.get(url).then(response => {
+                        Vue.set(this.hosts, this.hostModel._index, response.data.data);
+                        this.$Message.info('ok');
+                    });
+                } else {
+                    this.$Message.info('请手动启用该主机监控');
+                }
             },
             switch_pfm: function () {
                 params = {

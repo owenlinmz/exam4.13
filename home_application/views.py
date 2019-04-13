@@ -130,6 +130,10 @@ def switch_pfm(request):
     params = json.loads(request.body)
     host_info = HostInfo.objects.get(bk_host_innerip=params['ip'])
     host_info.is_delete = params['is_delete']
+    if host_info.is_delete:
+        host_info.cpu = '--'
+        host_info.mem = '--'
+        host_info.disk = '--'
     host_info.save()
     return render_json({'data': model_to_dict(host_info)})
 
@@ -143,7 +147,11 @@ def display_performance(request):
     # 处理单个主机的性能数据
     def generate_data(pfm_list):
         if not pfm_list:
-            return None
+            return {
+                "xAxis": [],
+                "series": [],
+                "title": u"无数据"
+            }
         xAxis = []
         series = []
         mem = []
@@ -183,18 +191,8 @@ def display_performance(request):
         'bk_host_innerip_id': HostInfo.objects.get(bk_host_innerip=params.pop('ip')).id
     })
 
-    host_pfm_list = HostPerformance.objects.filter(**params)
-    if params.get('bk_host_innerip__in', None):
-        for ip in params['bk_host_innerip__in']:
-            single_host_pfm_list = host_pfm_list.filter(bk_host_innerip=ip)
-            if single_host_pfm_list.exists():
-                result.append(generate_data(single_host_pfm_list))
-    else:
-        host_info_list = HostInfo.objects.filter(is_delete=False, bk_os_name__contains='linux')
-        for host_info in host_info_list:
-            single_res = generate_data(host_pfm_list.filter(bk_host_innerip=host_info))
-            if single_res:
-                result.append(single_res)
+    host_pfm_list = HostPerformance.objects.filter(**params).order_by('-check_time')[:60].reverse()
+    result.append(generate_data(host_pfm_list))
     return render_json({'data': result})
 
 

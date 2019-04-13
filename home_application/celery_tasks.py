@@ -65,11 +65,11 @@ def get_pfm():
         bk_biz_id = host_info_list[0].bk_biz_id
         client = get_client_by_user(username)
         script_content = '''#!/bin/bash
-            MEMORY=$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')
-            DISK=$(df -h | awk '$NF=="/"{printf "%s", $5}')
-            CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
-            DATE=$(date "+%Y-%m-%d %H:%M:%S")
-            echo -e "$DATE|$MEMORY|$DISK|$CPU"
+MEMORY=$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')
+DISK=$(df -h | awk '$NF=="/"{printf "%s", $5}')
+CPU=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
+DATE=$(date "+%Y-%m-%d %H:%M:%S")
+echo -e "$DATE|$MEMORY|$DISK|$CPU"
             '''
         data = {
             'ip_list': ip_list,

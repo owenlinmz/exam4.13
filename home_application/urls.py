@@ -8,7 +8,7 @@ urlpatterns = patterns(
     (r'^dev-guide/$', 'dev_guide'),
     (r'^contactus/$', 'contactus'),
     (r'^api/test/$', 'test'),
-    (r'^modal/$', 'modal'),
+    (r'^performance/$', 'performance'),
 
     (r'^get_set/$', 'get_set'),
     (r'^get_biz/$', 'get_biz'),

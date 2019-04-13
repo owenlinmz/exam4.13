@@ -42,11 +42,11 @@ def contactus(request):
     return render_mako_context(request, '/home_application/contact.html')
 
 
-def modal(request):
+def performance(request):
     """
     测试
     """
-    return render_mako_context(request, '/home_application/modal.html')
+    return render_mako_context(request, '/home_application/performance.html')
 
 
 def test(request):
@@ -185,9 +185,7 @@ def display_performance(request):
 
     params = json.loads(request.body)
     result = []
-    now = datetime.datetime.now()
     params.update({
-        'check_time__gte': now - datetime.timedelta(0, 3600),
         'bk_host_innerip_id': HostInfo.objects.get(bk_host_innerip=params.pop('ip')).id
     })
 
